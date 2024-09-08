@@ -1,10 +1,10 @@
 export const Persons = ({ filter, persons, onClickDelete }) => {
     return (
-        <>
+        <ul>
             {filter.length
                 ? filter.map((person) => {
                       return (
-                          <p key={person.id}>
+                          <li className="person" key={person.id}>
                               {person.name} {person.number}{" "}
                               <button
                                   data-person-id={person.id}
@@ -13,11 +13,11 @@ export const Persons = ({ filter, persons, onClickDelete }) => {
                               >
                                   delete
                               </button>
-                          </p>
+                          </li>
                       );
                   })
                 : persons.map((person) => (
-                      <p key={person.id}>
+                      <li className="person" key={person.id}>
                           {person.name} {person.number} {""}
                           <button
                               data-person-id={person.id}
@@ -26,8 +26,8 @@ export const Persons = ({ filter, persons, onClickDelete }) => {
                           >
                               delete
                           </button>
-                      </p>
+                      </li>
                   ))}
-        </>
+        </ul>
     );
 };

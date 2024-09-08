@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import { Notification } from "./Notification";
 import { Filter } from "./Filter";
 import { PersonForm } from "./PersonForm";
 import { Persons } from "./Persons";
@@ -14,6 +14,11 @@ const App = () => {
     const [persons, setPersons] = useState([]);
     const [newPerson, setNewPerson] = useState({ name: "", number: "" });
     const [newFilter, setNewFilter] = useState([]);
+    const [message, setMessage] = useState({
+        success: null,
+        error: null,
+        type: ""
+    });
     const personUrl = "http://localhost:3001/persons/";
 
     useEffect(() => {
@@ -45,8 +50,8 @@ const App = () => {
                 const personToUpdate = persons.find(
                     (person) => person.name === newPerson.name
                 );
-                return putPerson(personUrl, personToUpdate.id, newPerson).then(
-                    (data) => {
+                return putPerson(personUrl, personToUpdate.id, newPerson)
+                    .then((data) => {
                         setPersons(
                             persons.map((person) =>
                                 person.id === data.id ? data : person
@@ -59,8 +64,19 @@ const App = () => {
                         );
                         setNewPerson({ name: "", number: "" });
                         return data;
-                    }
-                );
+                    })
+                    .catch((error) => {
+                        setMessage({
+                            ...message,
+                            error: `Information of ${newPerson.name} has already been removed from server`,
+                            type: "common error"
+                        });
+                        setNewPerson({ name: "", number: "" });
+                        setTimeout(() => {
+                            setMessage({ ...message, error: null });
+                        }, 5000);
+                        return error;
+                    });
             }
             return setNewPerson({ name: "", number: "" });
         }
@@ -69,8 +85,18 @@ const App = () => {
             ...newPerson,
             id: String(persons.length + 1)
         }).then((data) => {
+            setPersons(persons.concat(data));
             setNewFilter(persons.concat(data));
+            setMessage({
+                ...message,
+                success: `Added ${data.name}`,
+                type: "common success"
+            });
+            console.log(message);
             setNewPerson({ name: "", number: "" });
+            setTimeout(() => {
+                setMessage({ ...message, success: null });
+            }, 5000);
             return data;
         });
     };
@@ -107,16 +133,17 @@ const App = () => {
 
     return (
         <div>
-            <h2>Phonebook</h2>
+            <h1>Phonebook</h1>
+            <Notification type={message.type} message={message} />
             <Filter handler={handleFilter} />
-            <h3>add a new</h3>
+            <h2>add a new</h2>
             <PersonForm
                 onSubmit={handleSubmit}
                 onChangeName={handleNewName}
                 onChangeNumber={handleNewNumber}
                 value={newPerson}
             />
-            <h3>Numbers</h3>
+            <h2>Numbers</h2>
             <Persons
                 filter={newFilter}
                 persons={persons}
