@@ -1,4 +1,3 @@
 .flag {
-    padding: 1px;
-    background-color: black;
+    border: 1px solid;
 }

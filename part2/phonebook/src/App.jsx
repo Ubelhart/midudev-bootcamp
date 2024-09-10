@@ -19,10 +19,10 @@ const App = () => {
         error: null,
         type: ""
     });
-    const personUrl = "http://localhost:3001/persons/";
+    const personsUrl = "/api/persons/";
 
     useEffect(() => {
-        getPersons(personUrl).then((data) => {
+        getPersons(personsUrl).then((data) => {
             setPersons(data);
         });
     }, []);
@@ -50,7 +50,7 @@ const App = () => {
                 const personToUpdate = persons.find(
                     (person) => person.name === newPerson.name
                 );
-                return putPerson(personUrl, personToUpdate.id, newPerson)
+                return putPerson(personsUrl, personToUpdate.id, newPerson)
                     .then((data) => {
                         setPersons(
                             persons.map((person) =>
@@ -81,22 +81,21 @@ const App = () => {
             return setNewPerson({ name: "", number: "" });
         }
 
-        return postPerson(personUrl, {
-            ...newPerson,
-            id: String(persons.length + 1)
-        }).then((data) => {
-            setPersons(persons.concat(data));
-            setNewFilter(persons.concat(data));
-            setMessage({
-                ...message,
-                success: `Added ${data.name}`,
-                type: "common success"
-            });
-            console.log(message);
-            setNewPerson({ name: "", number: "" });
-            setTimeout(() => {
-                setMessage({ ...message, success: null });
-            }, 5000);
+        return postPerson(personsUrl, newPerson).then((data) => {
+            if (newPerson.name && newPerson.number) {
+                setPersons(persons.concat(data));
+                setNewFilter(persons.concat(data));
+                setMessage({
+                    ...message,
+                    success: `Added ${data.name}`,
+                    type: "common success"
+                });
+                setNewPerson({ name: "", number: "" });
+                setTimeout(() => {
+                    setMessage({ ...message, success: null });
+                }, 5000);
+                return data;
+            }
             return data;
         });
     };
@@ -113,7 +112,7 @@ const App = () => {
 
     const handleDelete = (event) => {
         if (confirm(`Delete ${event.target.dataset.personName} ?`)) {
-            return deletePerson(personUrl, event.target.dataset.personId).then(
+            return deletePerson(personsUrl, event.target.dataset.personId).then(
                 (data) => {
                     setPersons((prevPersons) => {
                         return prevPersons.filter(
